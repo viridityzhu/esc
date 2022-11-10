@@ -1,3 +1,52 @@
+# CS4248 Project
+## Experiment of Model Combination - Adjusting Model Structure
+
+This project is based on the ESC system.
+
+### Installation
+
+```sh
+conda create --name esc python=3.6
+conda activate esc
+pip install -r requirements.txt
+python -m spacy download en
+wget https://www.comp.nus.edu.sg/~nlp/sw/m2scorer.tar.gz
+```
+### Experiments
+
+`run_e1.py`,`run_e2.py`, `run_e3.py`, `run_e4.py`, `run_e5.py` contains different experiment settings. To run each experiment setting, follow the train and test instructions, and replace the `run_e1.py` file accordingly.
+
+- train
+
+```sh
+export EXP_DIR=conll-exp
+
+CUDA_VISIBLE_DEVICES=5 python run_e1.py --train --data_dir $EXP_DIR/dev-text --m2_dir $EXP_DIR/dev-m2 --model_path $EXP_DIR/models --vocab_path $EXP_DIR/vocab.idx --lr 0.2
+```
+
+- Get the F0.5 development score
+
+```sh
+errant_parallel -ori $EXP_DIR/dev-text/source.txt -cor $EXP_DIR/outputs/dev.out -out $EXP_DIR/outputs/dev.m2
+errant_compare -ref bea-full-valid.m2 -hyp $EXP_DIR/outputs/dev.m2
+
+errant_parallel -ori $EXP_DIR/dev-text/source.txt -cor $EXP_DIR/outputs/dev.out -out $EXP_DIR/outputs/dev.m2
+errant_compare -ref bea-full-valid.m2 -hyp $EXP_DIR/outputs/dev.m2
+```
+
+- test
+
+```sh
+# test on dea dev
+python run_e1.py --test --data_dir $EXP_DIR/dev-text --m2_dir $EXP_DIR/dev-m2 --model_path $EXP_DIR/models/model.pt --vocab_path $EXP_DIR/vocab.idx --output_path $EXP_DIR/outputs/dev.out
+
+# test on coll
+python run_e1.py --test --data_dir $EXP_DIR/test-text --m2_dir $EXP_DIR/test-m2 --model_path $EXP_DIR/models/model.pt --vocab_path $EXP_DIR/vocab.idx --output_path $EXP_DIR/outputs/test.out
+
+python2 m2scorer/scripts/m2scorer.py $EXP_DIR/outputs/test.out conll14st-test-corrected.m2
+```
+
+**Following are the original README of ESC**
 # Frustratingly Easy System Combination for Grammatical Error Correction
 
 This repository provides the code to easily combines Grammatical Error Correction (GEC) models to produce better predictions with just the models' outputs, as reported in this paper:
